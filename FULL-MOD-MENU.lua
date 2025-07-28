@@ -11,7 +11,7 @@ end
 
 -- 🎯 تحديد نوع الباسورد
 local isMaster = (password[1] == "MASTER")
-local isPro = (password[1] == "PRO")
+local isPro = (password[1] == "7DA")
 
 if isMaster then
     gg.alert("✅ كلمة السر MASTER – الأداة شغالة بدون انتهاء 🔓")
