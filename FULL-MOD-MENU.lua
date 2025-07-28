@@ -4,7 +4,7 @@ password = gg.prompt({
 }, {}, {[1] = 'text'})
 
 -- ✅ التحقق من كلمة السر
-if not password or (password[1] ~= "VIP" and password[1] ~= "MASTER" and password[1] ~= "7DA") then
+if not password or (password[1] ~= "vip" and password[1] ~= "MASTER" and password[1] ~= "7DA") then
     gg.alert("❌ كلمة السر غلط! حاول مرة تانية.")
     os.exit()
 end
