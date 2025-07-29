@@ -34,7 +34,7 @@ local versionFile = "/storage/emulated/0/.gg_script_version.txt"
 -----------------------------------------------------
 -- 🔧 ✨ خاصية إيقاف الهاك وقت التحديثات ✨
 -----------------------------------------------------
-local maintenanceMode = false   -- ⚠️ لو خليتها true = الهاك هيتقفل ويظهر رسالة “الهاك موقوف للتحديثات”
+local maintenanceMode = true   -- ⚠️ لو خليتها true = الهاك هيتقفل ويظهر رسالة “الهاك موقوف للتحديثات”
 
 if maintenanceMode then
     -- امسح ملف النسخة علشان لما الهاك يرجع تاني، تظهر رسالة “تم تنزيل التحديث”
@@ -143,7 +143,7 @@ while true do
 
             gg.editAll("1066399999", gg.TYPE_DWORD)    
             gg.clearResults()    
-            gg.toast("✅ تم تفعيل التسديد القوي!")    
+            gg.toast("✅ تم تفعيل التسديد القوي")    
 
         elseif menu == 2 then    
             gg.setRanges(gg.REGION_C_DATA)    
