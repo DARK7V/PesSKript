@@ -1,3 +1,7 @@
+
+-- 🏷️ رقم نسخة السكربت (غيره كل ما تعمل تحديث)
+local SCRIPT_VERSION = "1.0"   -- 🟢 غير الرقم مثلاً لـ 1.1 أو 2.0 كل تحديث
+
 -- 🔒 طلب كلمة السر    
 password = gg.prompt({    
     [1] = 'ادخل كلمه السر هنا 👇:',    
@@ -23,18 +27,18 @@ end
 
 gg.toast("✅ تم تفعيل الأداة!")    
 
--- 📂 مكان حفظ الملفات  
+-- 📂 ملفات التخزين  
 local saveFile = "/storage/emulated/0/.gg_script_date.txt"    
-local firstRunFile = "/storage/emulated/0/.gg_first_run.txt"  
+local versionFile = "/storage/emulated/0/.gg_script_version.txt"  
 
 -----------------------------------------------------
--- 🔧  ✨  خاصية إيقاف الهاك وقت التحديثات ✨
+-- 🔧 ✨ خاصية إيقاف الهاك وقت التحديثات ✨
 -----------------------------------------------------
 local maintenanceMode = false   -- ⚠️ لو خليتها true = الهاك هيتقفل ويظهر رسالة “الهاك موقوف للتحديثات”
 
 if maintenanceMode then
-    -- امسح ملف first_run علشان لما يرجع الهاك يشتغل تاني، تظهر رسالة “تم تنزيل التحديث”
-    os.remove(firstRunFile)
+    -- امسح ملف النسخة علشان لما الهاك يرجع تاني، تظهر رسالة “تم تنزيل التحديث”
+    os.remove(versionFile)
     gg.alert("⚠️ الهاك موقوف مؤقتًا للتحديثات 🔧\n🔄 حاول مرة أخرى بعد شوية.")
     os.exit()
 end
@@ -55,16 +59,23 @@ else
     file:close()    
 end    
 
--- 📢 ✅ لو أول مرة نشغل السكربت – نعرض رسالة تحديث  
-local checkFirst = io.open(firstRunFile, "r")  
-if not checkFirst then  
-    gg.alert("✅ تم تنزيل التحديث")  
-    checkFirst = io.open(firstRunFile, "w")  
-    checkFirst:write("done")  
-    checkFirst:close()  
-else  
-    checkFirst:close()  
-end  
+-----------------------------------------------------
+-- ✅ 👀 تحقق من نسخة السكربت
+-----------------------------------------------------
+local oldVersionFile = io.open(versionFile, "r")
+local oldVersion = oldVersionFile and oldVersionFile:read("*a") or nil
+if oldVersionFile then oldVersionFile:close() end
+
+-- ✅ لو أول مرة يشغل السكربت أو فيه تحديث جديد → يظهر رسالة التحديث
+if oldVersion ~= SCRIPT_VERSION then
+    if oldVersion ~= nil then
+        gg.alert("✅ تم تنزيل التحديث الجديد (" .. SCRIPT_VERSION .. ")")
+    end
+    local vf = io.open(versionFile, "w")
+    vf:write(SCRIPT_VERSION)
+    vf:close()
+end
+-----------------------------------------------------
 
 -- 📆 صلاحية حسب نوع الباسورد    
 local EXPIRE_DATE = nil    
