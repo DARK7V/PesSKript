@@ -1,6 +1,6 @@
 
 -- 🏷️ رقم نسخة السكربت (غيره كل ما تعمل تحديث)
-local SCRIPT_VERSION = "3.3"   -- 🟢 غير الرقم مثلاً لـ 1.1 أو 2.0 كل تحديث
+local SCRIPT_VERSION = "3.4"   -- 🟢 غير الرقم مثلاً لـ 1.1 أو 2.0 كل تحديث
 
 -- 🔒 طلب كلمة السر    
 password = gg.prompt({    
@@ -20,7 +20,7 @@ local isPro = (password[1] == "Loden")
 if isMaster then    
     gg.alert("✅ كلمة السر MASTER – الأداة شغالة بدون انتهاء 🔓")    
 elseif isPro then    
-    gg.alert("✅ كلمة السر DA 7 – الصلاحية 7 أيام ⏳")    
+    gg.alert("✅ كلمة السر Loden – الصلاحية 7 أيام ⏳")    
 else    
     gg.alert("✅ كلمة السر VIP – الصلاحية 3 أيام ⏳")    
 end    
