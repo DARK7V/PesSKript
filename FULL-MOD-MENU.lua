@@ -1,6 +1,6 @@
 
 -- 🏷️ رقم نسخة السكربت (غيره كل ما تعمل تحديث)
-local SCRIPT_VERSION = "3.2"   -- 🟢 غير الرقم مثلاً لـ 1.1 أو 2.0 كل تحديث
+local SCRIPT_VERSION = "3.3"   -- 🟢 غير الرقم مثلاً لـ 1.1 أو 2.0 كل تحديث
 
 -- 🔒 طلب كلمة السر    
 password = gg.prompt({    
@@ -8,14 +8,14 @@ password = gg.prompt({
 }, {}, {[1] = 'text'})    
 
 -- ✅ التحقق من كلمة السر    
-if not password or (password[1] ~= "VIP" and password[1] ~= "MASTER" and password[1] ~= "7DA") then    
+if not password or (password[1] ~= "VIP" and password[1] ~= "MASTER" and password[1] ~= "Loden") then    
     gg.alert("❌ كلمة السر غلط! حاول مرة تانية.")    
     os.exit()    
 end    
 
 -- 🎯 تحديد نوع الباسورد    
 local isMaster = (password[1] == "MASTER")    
-local isPro = (password[1] == "7DA")    
+local isPro = (password[1] == "Loden")    
 
 if isMaster then    
     gg.alert("✅ كلمة السر MASTER – الأداة شغالة بدون انتهاء 🔓")    
@@ -128,7 +128,7 @@ while true do
             '🍀 تفعيل نسبة الحظ',    
             '🚫 إيقاف نسبة الحظ',    
             '🚪 خروج'    
-        }, nil, '👑 قائمة الأدوات')    
+        }, nil,'قائمة ادوات 𝙡𝙤𝙙𝙚𝙣_لــــــودن 🇮🇶 👑')    
 
         if menu == 1 then    
             gg.setRanges(gg.REGION_C_DATA)    
