@@ -5,6 +5,31 @@ local SCRIPT_VERSION = "4.0"
 -- 🌍 دالة تسجيل المستخدمين في Google Sheets
 -----------------------------------------------------
 -- 📂 ملف تعريف الجهاز (عشان يمنع التكرار)
+
+
+-- 🔒 طلب كلمة السر (إدخال واحد)
+local password = gg.prompt({
+    [1] = '🔑 ادخل كلمة السر هنا:'
+}, {}, {[1] = 'text'})
+
+if not password then
+    gg.alert("❌ لم يتم إدخال كلمة السر!")
+    os.exit()
+end
+
+local pass = password[1]
+
+-- ✅ أنواع كلمات السر
+local isMaster = (pass == "MASTER")
+local isVIP = (pass == "VIP")
+local isLoden = (pass == "Loden")
+local isUltraVIP = (pass == "ULTRA-VIP")
+local isUltraMaster = (pass == "ULTRA-MASTER")  -- 🚀 أعلى رتبة
+
+-- 📥 تسجيل المستخدم في Google Sheets
+logUser(pass)
+
+-- 📂 ملف تعريف الجهاز (عشان يمنع التكرار)
 local deviceFile = "/storage/emulated/0/.gg_device_registered.txt"
 
 -- ✅ دالة تحقق لو الجهاز اتسجل قبل كده
@@ -31,29 +56,6 @@ if not isDeviceRegistered() then
     .. pass .. "&pkg=" .. gg.getTargetPackage())
     registerDevice()
 end
-
--- 🔒 طلب كلمة السر (إدخال واحد)
-local password = gg.prompt({
-    [1] = '🔑 ادخل كلمة السر هنا:'
-}, {}, {[1] = 'text'})
-
-if not password then
-    gg.alert("❌ لم يتم إدخال كلمة السر!")
-    os.exit()
-end
-
-local pass = password[1]
-
--- ✅ أنواع كلمات السر
-local isMaster = (pass == "MASTER")
-local isVIP = (pass == "VIP")
-local isLoden = (pass == "Loden")
-local isUltraVIP = (pass == "ULTRA-VIP")
-local isUltraMaster = (pass == "ULTRA-MASTER")  -- 🚀 أعلى رتبة
-
--- 📥 تسجيل المستخدم في Google Sheets
-logUser(pass)
-
 if not (isMaster or isVIP or isLoden or isUltraVIP or isUltraMaster) then
     gg.alert("❌ كلمة السر غلط! حاول مرة تانية.")
     os.exit()
