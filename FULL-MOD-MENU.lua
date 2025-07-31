@@ -4,8 +4,23 @@ local SCRIPT_VERSION = "4.0"
 -----------------------------------------------------
 -- 🌍 دالة تسجيل المستخدمين في Google Sheets
 -----------------------------------------------------
--- 📂 ملف تعريف الجهاز (عشان يمنع التكرار)
+function logUser(code)
+    local saveLog = "/storage/emulated/0/.gg_log_user.txt"  -- ملف لتسجيل أول مرة بس
+    local check = io.open(saveLog, "r")
+    if check then
+        check:close()
+        return  -- لو الجهاز اتسجل قبل كده → خروج
+    end
 
+    local url = "https://script.google.com/macros/s/AKfycbzacHqX0YHatMzZBt7f9w4knnQYbGCiB5b3uGBKhF8MF1wz1V_0oGJrIcyFzzKRCuea8Q/exec"
+    url = url .. "?code=" .. code .. "&pkg=" .. gg.getTargetPackage() .. "&device=" .. gg.getDevice()
+
+    gg.makeRequest(url)
+
+    local f = io.open(saveLog, "w")
+    f:write("logged")
+    f:close()
+end
 
 -- 🔒 طلب كلمة السر (إدخال واحد)
 local password = gg.prompt({
@@ -26,36 +41,9 @@ local isLoden = (pass == "Loden")
 local isUltraVIP = (pass == "ULTRA-VIP")
 local isUltraMaster = (pass == "ULTRA-MASTER")  -- 🚀 أعلى رتبة
 
--- 📥 تسجيل المستخدم في Google Sheets
+-- 📥 تسجيل المستخدم في Google Sheets (مرة واحدة بس)
 logUser(pass)
 
--- 📂 ملف تعريف الجهاز (عشان يمنع التكرار)
-local deviceFile = "/storage/emulated/0/.gg_device_registered.txt"
-
--- ✅ دالة تحقق لو الجهاز اتسجل قبل كده
-function isDeviceRegistered()
-    local file = io.open(deviceFile, "r")
-    if file then
-        file:close()
-        return true
-    else
-        return false
-    end
-end
-
--- ✅ دالة تكتب ملف التسجيل
-function registerDevice()
-    local file = io.open(deviceFile, "w")
-    file:write("registered")
-    file:close()
-end
-
--- ✅ إرسال تسجيل لمرة واحدة بس
-if not isDeviceRegistered() then
-    local http = gg.makeRequest("https://script.google.com/macros/s/AKfycbzacHqX0YHatMzZBt7f9w4knnQYbGCiB5b3uGBKhF8MF1wz1V_0oGJrIcyFzzKRCuea8Q/exec?pass=" 
-    .. pass .. "&pkg=" .. gg.getTargetPackage())
-    registerDevice()
-end
 if not (isMaster or isVIP or isLoden or isUltraVIP or isUltraMaster) then
     gg.alert("❌ كلمة السر غلط! حاول مرة تانية.")
     os.exit()
