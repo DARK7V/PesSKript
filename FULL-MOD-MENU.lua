@@ -4,10 +4,32 @@ local SCRIPT_VERSION = "4.0"
 -----------------------------------------------------
 -- 🌍 دالة تسجيل المستخدمين في Google Sheets
 -----------------------------------------------------
-function logUser(code)
-    local url = "https://script.google.com/macros/s/AKfycbzacHqX0YHatMzZBt7f9w4knnQYbGCiB5b3uGBKhF8MF1wz1V_0oGJrIcyFzzKRCuea8Q/exec"
-    url = url .. "?code=" .. code .. "&device=" .. gg.getTargetPackage()
-    gg.makeRequest(url)
+-- 📂 ملف تعريف الجهاز (عشان يمنع التكرار)
+local deviceFile = "/storage/emulated/0/.gg_device_registered.txt"
+
+-- ✅ دالة تحقق لو الجهاز اتسجل قبل كده
+function isDeviceRegistered()
+    local file = io.open(deviceFile, "r")
+    if file then
+        file:close()
+        return true
+    else
+        return false
+    end
+end
+
+-- ✅ دالة تكتب ملف التسجيل
+function registerDevice()
+    local file = io.open(deviceFile, "w")
+    file:write("registered")
+    file:close()
+end
+
+-- ✅ إرسال تسجيل لمرة واحدة بس
+if not isDeviceRegistered() then
+    local http = gg.makeRequest("https://script.google.com/macros/s/AKfycbzacHqX0YHatMzZBt7f9w4knnQYbGCiB5b3uGBKhF8MF1wz1V_0oGJrIcyFzzKRCuea8Q/exec?pass=" 
+    .. pass .. "&pkg=" .. gg.getTargetPackage())
+    registerDevice()
 end
 
 -- 🔒 طلب كلمة السر (إدخال واحد)
