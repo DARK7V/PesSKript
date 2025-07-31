@@ -1,62 +1,64 @@
--- 🏷️ رقم نسخة السكربت
-local SCRIPT_VERSION = "3.5"
+-- 🏷️ رقم نسخة السكربت (غيره كل ما تعمل تحديث)
+local SCRIPT_VERSION = "4.1"
 
--- 🔒 طلب كلمة السر + مفتاح VIP
-password = gg.prompt({
-    [1] = 'ادخل كلمه السر هنا 👇:',
-    [2] = '🎟️ ادخل مفتاح VIP (اختياري):'
-}, {}, {[1] = 'text', [2] = 'text'})
+-- 🔒 طلب كلمة السر (إدخال واحد)
+local password = gg.prompt({
+    [1] = '🔑 ادخل كلمة السر هنا:'
+}, {}, {[1] = 'text'})
 
--- ✅ التحقق من كلمة السر
-if not password or (password[1] ~= "VIP" and password[1] ~= "MASTER" and password[1] ~= "Loden") then
+if not password then
+    gg.alert("❌ لم يتم إدخال كلمة السر!")
+    os.exit()
+end
+
+local pass = password[1]
+
+-- ✅ أنواع كلمات السر
+local isMaster = (pass == "MASTER")
+local isVIP = (pass == "VIP")
+local isLoden = (pass == "Loden")
+local isUltraVIP = (pass == "ULTRA-VIP")
+local isUltraMaster = (pass == "ULTRA-MASTER")  -- 🚀 أعلى رتبة
+
+if not (isMaster or isVIP or isLoden or isUltraVIP or isUltraMaster) then
     gg.alert("❌ كلمة السر غلط! حاول مرة تانية.")
     os.exit()
 end
 
--- 🎯 تحديد نوع الباسورد
-local isMaster = (password[1] == "MASTER")
-local isPro = (password[1] == "Loden")
-
-if isMaster then
-    gg.alert("✅ كلمة السر MASTER – الأداة شغالة بدون انتهاء 🔓")
-elseif isPro then
-    gg.alert("✅ كلمة السر Loden – الصلاحية 7 أيام ⏳")
-else
-    gg.alert("✅ كلمة السر VIP – الصلاحية 3 أيام ⏳")
+-- ✅ رسائل التفعيل
+if isUltraMaster then
+    gg.alert("👑🔥 ULTRA MASTER – أقوى رتبة 🔓\n🎁 كل الصلاحيات شغالة للأبد!")
+elseif isMaster then
+    gg.alert("✅ MASTER – الأداة شغالة 🔓")
+elseif isVIP then
+    gg.alert("✅ VIP – الصلاحية 3 أيام ⏳")
+elseif isLoden then
+    gg.alert("✅ Loden – الصلاحية 7 أيام ⏳")
+elseif isUltraVIP then
+    gg.alert("🌟 ULTRA VIP – الصلاحية 7 أيام + ميزات خاصة")
 end
 
 gg.toast("✅ تم تفعيل الأداة!")
 
------------------------------------------------------
--- 🔑 مفتاح VIP السري
------------------------------------------------------
-local vipKey = "VIP3"   -- 🔥 تقدر تغيّر المفتاح هنا
-local isVIP = false
-if password[2] == vipKey then
-    isVIP = true
-    gg.alert("🎉✅ تم تفعيل وضع VIP! \n✨ ظهرت لك مميزات إضافية.")
-end
-
------------------------------------------------------
 -- 📂 ملفات التخزين
------------------------------------------------------
 local saveFile = "/storage/emulated/0/.gg_script_date.txt"
 local versionFile = "/storage/emulated/0/.gg_script_version.txt"
 
 -----------------------------------------------------
--- 🔧 ✨ خاصية إيقاف الهاك وقت التحديثات ✨
+-- 🔧 ✨ وضع الصيانة ✨
 -----------------------------------------------------
-local maintenanceMode = false   -- لو خليتها true = الهاك يتقفل
+local maintenanceMode = false   -- لو true = الهاك واقف لكل الناس ماعدا ULTRA-VIP و ULTRA-MASTER
 
-if maintenanceMode then
+if maintenanceMode and not (isUltraVIP or isUltraMaster) then
     os.remove(versionFile)
-    gg.alert("⚠️ الهاك موقوف مؤقتًا للتحديثات 🔧\n🔄 حاول مرة أخرى بعد شوية.")
+    gg.alert("⚠️ الهاك موقوف مؤقتًا للتحديثات 🔧\n🔄 حاول مرة تانية بعد شوية.")
     os.exit()
+elseif maintenanceMode and (isUltraVIP or isUltraMaster) then
+    gg.alert("🔥 في تحديثات دلوقتي يا نجم وكلو واقف...\n❤ بس رتبتك عالية فشغال معاك!")
 end
 
 -----------------------------------------------------
 -- 📆 تحديد تاريخ بداية التشغيل
------------------------------------------------------
 local START_DATE
 local file = io.open(saveFile, "r")
 if file then
@@ -87,45 +89,46 @@ end
 
 -----------------------------------------------------
 -- 📆 صلاحية حسب نوع الباسورد
------------------------------------------------------
 local EXPIRE_DATE = nil
-if not isMaster then
-    if isPro then
+if not (isMaster or isUltraMaster) then
+    if isLoden or isUltraVIP then
         EXPIRE_DATE = START_DATE + (7 * 24 * 60 * 60)
-    else
+    elseif isVIP then
         EXPIRE_DATE = START_DATE + (3 * 24 * 60 * 60)
     end
 end
 
------------------------------------------------------
--- 🗓️ دالة عرض تاريخ الانتهاء
------------------------------------------------------
 local function formatDate(timestamp)
     local date = os.date("*t", timestamp)
     return string.format("%02d/%02d/%04d", date.day, date.month, date.year)
 end
 
-if not isMaster then
+if not (isMaster or isUltraMaster) then
     gg.alert("📅 صلاحية السكربت تنتهي يوم: " .. formatDate(EXPIRE_DATE))
-end
-
------------------------------------------------------
--- 🎯 وظائف VIP – تحكم الزمن
------------------------------------------------------
-function speedInstant(mode)
-    if mode == "x2" then
-        gg.setSpeed(2.0)
-        gg.alert("⏩ الوقت مسرع الآن ×2")
-    elseif mode == "pause" then
-        gg.setSpeed(0.0)
-        gg.alert("⏸ الوقت متوقف الآن")
+else
+    if isUltraMaster then
+        gg.alert("♾️ ULTRA MASTER صلاحية دائمة – مش هيقف أبداً ✅")
     end
 end
 
+-- ⚠️ تحذير لو باقي 24 ساعة (لغير الدائمين)
+local now = os.time()
+if not (isMaster or isUltraMaster) and (EXPIRE_DATE - now) < 86400 and (EXPIRE_DATE - now) > 0 then
+    gg.alert("⚠️ تحذير: الصلاحية هتنتهي خلال 24 ساعة!")
+end
+
+-- 📦 جداول حفظ القيم
+local savedValues = {}
+local savedPossession = {}
+local savedLuck = {}
+
+-----------------------------------------------------
+-- 🕹️ وظائف السرعة (ULTRA-VIP & ULTRA-MASTER)
+-----------------------------------------------------
 function activateTimer()
     gg.alert("⏱️ تم تفعيل تايمر 6:15 دقيقة...")
-    gg.sleep(375000)  -- 6 دقائق و15 ثانية
-    gg.alert("🚀 التايمر انتهى! سرعة ×10")
+    gg.sleep(375000)
+    gg.alert("🚀 تايمر انتهى! تفعيل السرعة ×10")
     gg.setSpeed(10.0)
 end
 
@@ -140,35 +143,27 @@ function speedMenu()
             "⚡ سرعة 5x",
             "💥 سرعة 10x",
             "🔙 رجوع"
-        }, nil, "👑 تحكم VIP في الزمن ⏳")
+        }, nil, "👑 تحكم الزمن ⏳")
 
         local speeds = {0.25, 0.5, 1.0, 2.0, 3.0, 5.0, 10.0}
-        if choice == nil or choice == 8 then break end
-        gg.setSpeed(speeds[choice])
-        gg.alert("⚡ تم ضبط السرعة: " .. speeds[choice] .. "x")
+        if choice == nil or choice == 8 then
+            break
+        elseif choice >= 1 and choice <= 7 then
+            gg.setSpeed(speeds[choice])
+            gg.alert("⚡ تم ضبط السرعة: " .. speeds[choice] .. "x")
+        end
     end
 end
 
 -----------------------------------------------------
--- 📦 جداول التخزين
------------------------------------------------------
-local savedValues = {}
-local savedPossession = {}
-local savedLuck = {}
-
------------------------------------------------------
--- 🎯 القائمة الرئيسية
+-- 🎯 حلقة القائمة الرئيسية
 -----------------------------------------------------
 while true do
     local now = os.time()
 
-    if not isMaster then
-        if now > EXPIRE_DATE then
-            gg.alert("⚠️ انتهت صلاحية السكربت!")
-            os.exit()
-        elseif (EXPIRE_DATE - now) < 86400 then
-            gg.toast("⏳ السكربت هينتهي خلال 24 ساعة!")
-        end
+    if not (isMaster or isUltraMaster) and now > EXPIRE_DATE then
+        gg.alert("❌ انتهت صلاحية السكربت!")
+        os.exit()
     end
 
     if gg.isVisible(true) then
@@ -181,61 +176,110 @@ while true do
             '♻️ إيقاف الاستحواذ',
             '🍀 تفعيل نسبة الحظ',
             '🚫 إيقاف نسبة الحظ',
-            '🚪 خروج'
         }
 
-        -- ✅ لو VIP نضيف خيار التحكم في الزمن
-        if isVIP then
-            table.insert(menuItems, 1, '🌟 وضع تحكم الزمن (VIP)')
+        -- ✅ لو UltraVIP أو UltraMaster يضيف ميزات السرعة
+        if (isUltraVIP or isUltraMaster) then
+            table.insert(menuItems, "⏩ سرعة ×2")
+            table.insert(menuItems, "⏸ إيقاف الوقت")
+            table.insert(menuItems, "⏱️ تايمر 6:15 دقيقة + تسريع ×10")
+            table.insert(menuItems, "⚡ قائمة السرعة المتقدمة")
         end
 
-        local menu = gg.choice(menuItems, nil, 'قائمة ادوات 𝙡𝙤𝙙𝙚𝙣_لــــــودن 🇮🇶 👑')
-        if not menu then goto continue end
+        table.insert(menuItems, '🚪 خروج')
 
-        -- ✅ لو VIP وتم اختيار أول خيار
-        if isVIP and menu == 1 then
-            local vipChoice = gg.choice({
-                "⏩ تسريع ×2",
-                "⏸ إيقاف الوقت",
-                "⏱️ تايمر 6:15 دقيقة ➜ سرعة ×10",
-                "⚙️ قائمة سرعات كاملة",
-                "🔙 رجوع"
-            }, nil, "🌟 قائمة VIP")
+        local menu = gg.choice(menuItems, nil, '👑 قائمة أدوات لودن 🇮🇶')
 
-            if vipChoice == 1 then
-                speedInstant("x2")
-            elseif vipChoice == 2 then
-                speedInstant("pause")
-            elseif vipChoice == 3 then
-                activateTimer()
-            elseif vipChoice == 4 then
-                speedMenu()
-            end
-            goto continue
-        elseif isVIP then
-            menu = menu - 1
-        end
+        if menu == 1 then    
+            gg.setRanges(gg.REGION_C_DATA)    
+            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)    
+            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_DWORD)    
+            gg.refineNumber("1065353216", gg.TYPE_DWORD)    
 
-        -----------------------------------------------------
-        -- ⚽ الخيارات العادية
-        -----------------------------------------------------
-        if menu == 1 then
-            gg.toast("✅ تم تفعيل التسديد القوي")
-        elseif menu == 2 then
-            gg.toast("❌ تم إيقاف التسديد القوي!")
-        elseif menu == 3 then
-            gg.toast("⚽✅ تم تفعيل الاستحواذ 100%")
-        elseif menu == 4 then
-            gg.toast("♻️✅ رجع الاستحواذ الأصلي")
-        elseif menu == 5 then
-            gg.toast("🍀✅ تم تفعيل نسبة الحظ!")
-        elseif menu == 6 then
-            gg.toast("🚫 تم إيقاف نسبة الحظ ورجوع القيم الأصلية ✅")
-        elseif menu == 7 then
+            local results = gg.getResults(10)    
+            for i, v in ipairs(results) do    
+                table.insert(savedValues, {address = v.address, flags = gg.TYPE_DWORD, value = v.value})    
+            end    
+
+            gg.editAll("1066399999", gg.TYPE_DWORD)    
+            gg.clearResults()    
+            gg.toast("✅ تم تفعيل التسديد القوي")    
+
+        elseif menu == 2 then    
+            gg.setRanges(gg.REGION_C_DATA)    
+            gg.searchNumber("1066399999", gg.TYPE_DWORD)    
+            gg.getResults(10)    
+            gg.editAll("1065353216", gg.TYPE_DWORD)    
+            gg.clearResults()    
+            gg.toast("❌ تم إيقاف التسديد القوي!")    
+
+        elseif menu == 3 then    
+            gg.setRanges(gg.REGION_C_DATA)    
+            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)    
+            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_DWORD)    
+            gg.refineNumber("1065353216", gg.TYPE_DWORD)    
+
+            local results = gg.getResults(10)    
+            savedPossession = {}    
+            for i, v in ipairs(results) do    
+                table.insert(savedPossession, {address = v.address, flags = gg.TYPE_DWORD, value = v.value})    
+            end    
+
+            gg.editAll("1063199999", gg.TYPE_DWORD)    
+            gg.clearResults()    
+            gg.toast("⚽✅ تم تفعيل الاستحواذ 100%")    
+
+        elseif menu == 4 then    
+            if #savedPossession > 0 then    
+                gg.setValues(savedPossession)    
+                gg.toast("♻️✅ رجع الاستحواذ الأصلي")    
+            else    
+                gg.toast("⚠️ مفيش قيم محفوظة للاستحواذ!")    
+            end    
+
+        elseif menu == 5 then    
+            gg.setRanges(gg.REGION_C_DATA)    
+            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)    
+            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_DWORD)    
+            gg.refineNumber("1065353216", gg.TYPE_DWORD)    
+
+            local results = gg.getResults(10)    
+            savedLuck = {}    
+            for i, v in ipairs(results) do    
+                table.insert(savedLuck, {address = v.address, flags = gg.TYPE_DWORD, value = v.value})    
+            end    
+
+            gg.editAll("1066999999", gg.TYPE_DWORD)    
+            gg.clearResults()    
+            gg.toast("🍀✅ تم تفعيل نسبة الحظ!")    
+
+        elseif menu == 6 then    
+            if #savedLuck > 0 then    
+                gg.setValues(savedLuck)    
+                gg.toast("🚫 تم إيقاف نسبة الحظ ورجوع القيم الأصلية ✅")    
+            else    
+                gg.toast("⚠️ مفيش قيم محفوظة للحظ!")    
+            end    
+
+        elseif (isUltraVIP or isUltraMaster) and menu == 7 then
+            gg.setSpeed(2.0)
+            gg.alert("⏩ الوقت مسرع ×2")
+
+        elseif (isUltraVIP or isUltraMaster) and menu == 8 then
+            gg.setSpeed(0.0)
+            gg.alert("⏸ تم إيقاف الوقت")
+
+        elseif (isUltraVIP or isUltraMaster) and menu == 9 then
+            activateTimer()
+
+        elseif (isUltraVIP or isUltraMaster) and menu == 10 then
+            speedMenu()
+
+        elseif ((not isUltraVIP and not isUltraMaster) and menu == 7) or ((isUltraVIP or isUltraMaster) and menu == 11) then
             gg.toast("👋 تم الخروج من الأداة.")
             os.exit()
         end
     end
-    ::continue::
+
     gg.sleep(400)
 end
