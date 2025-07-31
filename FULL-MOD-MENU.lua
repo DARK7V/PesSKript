@@ -1,58 +1,19 @@
 -- 🏷️ رقم نسخة السكربت (غيره كل ما تعمل تحديث)
-local SCRIPT_VERSION = "4.0"
-
------------------------------------------------------
--- 📂 تجهيز فولدر التخزين
------------------------------------------------------
-local baseFolder = "/storage/emulated/0/GGS/"
-os.execute("mkdir " .. baseFolder)
-
--- ملفات جوه الفولدر
-local saveFile   = baseFolder .. "gg_script_date.txt"
-local versionFile= baseFolder .. "gg_script_version.txt"
-local saveLog    = baseFolder .. "gg_log_user.txt"
+local SCRIPT_VERSION = "4.1"
 
 -----------------------------------------------------
 -- 🌍 دالة تسجيل المستخدمين في Google Sheets
 -----------------------------------------------------
-function logUserCheck(code)
-    local firstCode = nil
-    local f = io.open(saveLog, "r")
-
-    if f then
-        firstCode = f:read("*a")
-        f:close()
-    end
-
-    local baseURL = "https://script.google.com/macros/s/AKfycbzacHqX0YHatMzZBt7f9w4knnQYbGCiB5b3uGBKhF8MF1wz1V_0oGJrIcyFzzKRCuea8Q/exec"
-
-    if firstCode == nil then
-        -- 📥 أول باسورد يتسجل هنا
-        local url = baseURL .. "?code=" .. code ..
-                    "&pkg=" .. gg.getTargetPackage() ..
-                    "&device=" .. gg.getDevice() ..
-                    "&status=first"
-        gg.makeRequest(url)
-
-        local wf = io.open(saveLog, "w")
-        wf:write(code)
-        wf:close()
-        gg.toast("✅ تم تسجيل جهازك لأول مرة بكود: " .. code)
-
-    elseif firstCode ~= code then
-        -- ⚠️ لو دخل باسورد جديد → نبعت تقرير للشيت فقط
-        local url = baseURL .. "?code=" .. code ..
-                    "&pkg=" .. gg.getTargetPackage() ..
-                    "&device=" .. gg.getDevice() ..
-                    "&status=changed_from_" .. firstCode
-        gg.makeRequest(url)
-        -- مفيش أي تغيير على الباسورد الأول
-    end
+function logUser(code)
+    local url = "https://script.google.com/macros/s/AKfycbzacHqX0YHatMzZBt7f9w4knnQYbGCiB5b3uGBKhF8MF1wz1V_0oGJrIcyFzzKRCuea8Q/exec"
+    -- نجيب معلومات الهدف
+    local info = gg.getTargetInfo()
+    local device_info = info.packageName .. "_" .. (info.x64 and "64bit" or "32bit")
+    url = url .. "?code=" .. code .. "&device=" .. device_info
+    gg.makeRequest(url)
 end
 
------------------------------------------------------
--- 🔒 طلب كلمة السر
------------------------------------------------------
+-- 🔒 طلب كلمة السر (إدخال واحد)
 local password = gg.prompt({
     [1] = '🔑 ادخل كلمة السر هنا:'
 }, {}, {[1] = 'text'})
@@ -69,10 +30,10 @@ local isMaster      = (pass == "MASTER")
 local isVIP         = (pass == "VIP")
 local isLoden       = (pass == "Loden")
 local isUltraVIP    = (pass == "ULTRA-VIP")
-local isUltraMaster = (pass == "ULTRA-MASTER")
+local isUltraMaster = (pass == "ULTRA-MASTER")  -- 🚀 أعلى رتبة
 
--- 📥 تسجيل المستخدم (أول باسورد + أي محاولة تغيير)
-logUserCheck(pass)
+-- 📥 تسجيل المستخدم في Google Sheets
+logUser(pass)
 
 if not (isMaster or isVIP or isLoden or isUltraVIP or isUltraMaster) then
     gg.alert("❌ كلمة السر غلط! حاول مرة تانية.")
@@ -94,6 +55,10 @@ end
 
 gg.toast("✅ تم تفعيل الأداة!")
 
+-- 📂 ملفات التخزين
+local saveFile    = "/storage/emulated/0/.gg_script_date.txt"
+local versionFile = "/storage/emulated/0/.gg_script_version.txt"
+
 -----------------------------------------------------
 -- 🔧 ✨ وضع الصيانة ✨
 -----------------------------------------------------
@@ -109,7 +74,6 @@ end
 
 -----------------------------------------------------
 -- 📆 تحديد تاريخ بداية التشغيل
------------------------------------------------------
 local START_DATE
 local file = io.open(saveFile, "r")
 if file then
