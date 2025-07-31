@@ -1,5 +1,14 @@
 -- 🏷️ رقم نسخة السكربت (غيره كل ما تعمل تحديث)
-local SCRIPT_VERSION = "4.1"
+local SCRIPT_VERSION = "4.0"
+
+-----------------------------------------------------
+-- 🌍 دالة تسجيل المستخدمين في Google Sheets
+-----------------------------------------------------
+function logUser(code)
+    local url = "https://script.google.com/macros/s/AKfycbzacHqX0YHatMzZBt7f9w4knnQYbGCiB5b3uGBKhF8MF1wz1V_0oGJrIcyFzzKRCuea8Q/exec"
+    url = url .. "?code=" .. code .. "&device=" .. gg.getTargetPackage()
+    gg.makeRequest(url)
+end
 
 -- 🔒 طلب كلمة السر (إدخال واحد)
 local password = gg.prompt({
@@ -19,6 +28,9 @@ local isVIP = (pass == "VIP")
 local isLoden = (pass == "Loden")
 local isUltraVIP = (pass == "ULTRA-VIP")
 local isUltraMaster = (pass == "ULTRA-MASTER")  -- 🚀 أعلى رتبة
+
+-- 📥 تسجيل المستخدم في Google Sheets
+logUser(pass)
 
 if not (isMaster or isVIP or isLoden or isUltraVIP or isUltraMaster) then
     gg.alert("❌ كلمة السر غلط! حاول مرة تانية.")
@@ -47,7 +59,7 @@ local versionFile = "/storage/emulated/0/.gg_script_version.txt"
 -----------------------------------------------------
 -- 🔧 ✨ وضع الصيانة ✨
 -----------------------------------------------------
-local maintenanceMode = false   -- لو true = الهاك واقف لكل الناس ماعدا ULTRA-VIP و ULTRA-MASTER
+local maintenanceMode = true   -- لو true = الهاك واقف لكل الناس ماعدا ULTRA-VIP و ULTRA-MASTER
 
 if maintenanceMode and not (isUltraVIP or isUltraMaster) then
     os.remove(versionFile)
@@ -111,12 +123,6 @@ else
     end
 end
 
--- ⚠️ تحذير لو باقي 24 ساعة (لغير الدائمين)
-local now = os.time()
-if not (isMaster or isUltraMaster) and (EXPIRE_DATE - now) < 86400 and (EXPIRE_DATE - now) > 0 then
-    gg.alert("⚠️ تحذير: الصلاحية هتنتهي خلال 24 ساعة!")
-end
-
 -- 📦 جداول حفظ القيم
 local savedValues = {}
 local savedPossession = {}
@@ -178,7 +184,6 @@ while true do
             '🚫 إيقاف نسبة الحظ',
         }
 
-        -- ✅ لو UltraVIP أو UltraMaster يضيف ميزات السرعة
         if (isUltraVIP or isUltraMaster) then
             table.insert(menuItems, "⏩ سرعة ×2")
             table.insert(menuItems, "⏸ إيقاف الوقت")
