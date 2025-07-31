@@ -216,7 +216,7 @@ end
 
         if (isUltraVIP or isUltraMaster) then
             table.insert(menuItems, "⏩ سرعة ×2")
-            table.insert(menuItems, "⏸ إيقاف الوقت")
+            table.insert(menuItems, "⏸ إيقاف سرعة  الوقت")
             table.insert(menuItems, "⏱️ تايمر 6:15 دقيقة + تسريع ×10")
             table.insert(menuItems, "⚡ قائمة السرعة المتقدمة")
         end
@@ -306,8 +306,8 @@ end
         -- ⏸ إيقاف الوقت
         -------------------------------------------------
         elseif (isUltraVIP or isUltraMaster) and menu == 8 then
-            gg.setSpeed(0.0)
-            gg.alert("⏸ تم إيقاف الوقت")
+            gg.setSpeed(1.0)
+            gg.alert("⏸ تم إيقاف سرعة الوقت")
 
         -------------------------------------------------
         -- ⏱️ تايمر
