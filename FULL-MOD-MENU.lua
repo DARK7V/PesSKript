@@ -1,79 +1,142 @@
--- 🏷️ رقم نسخة السكربت (غيره كل ما تعمل تحديث)
-local SCRIPT_VERSION = "4.1"
+-- 🏷️ رقم نسخة السكربت
+local SCRIPT_VERSION = "3.9"
 
 -----------------------------------------------------
--- 🌍 دالة تسجيل المستخدمين في Google Sheets
+-- 📂 ملفات التخزين (على طول بدون فولدرات)
 -----------------------------------------------------
-function logUser(code)
-    local url = "https://script.google.com/macros/s/AKfycbzacHqX0YHatMzZBt7f9w4knnQYbGCiB5b3uGBKhF8MF1wz1V_0oGJrIcyFzzKRCuea8Q/exec"
-    -- نجيب معلومات الهدف
-    local info = gg.getTargetInfo()
-    local device_info = info.packageName .. "_" .. (info.x64 and "64bit" or "32bit")
-    url = url .. "?code=" .. code .. "&device=" .. device_info
-    gg.makeRequest(url)
-end
-
--- 🔒 طلب كلمة السر (إدخال واحد)
-local password = gg.prompt({
-    [1] = '🔑 ادخل كلمة السر هنا:'
-}, {}, {[1] = 'text'})
-
-if not password then
-    gg.alert("❌ لم يتم إدخال كلمة السر!")
-    os.exit()
-end
-
-local pass = password[1]
-
--- ✅ أنواع كلمات السر
-local isMaster      = (pass == "MASTER")
-local isVIP         = (pass == "VIP")
-local isLoden       = (pass == "Loden")
-local isUltraVIP    = (pass == "ULTRA-VIP")
-local isUltraMaster = (pass == "ULTRA-MASTER")  -- 🚀 أعلى رتبة
-
--- 📥 تسجيل المستخدم في Google Sheets
-logUser(pass)
-
-if not (isMaster or isVIP or isLoden or isUltraVIP or isUltraMaster) then
-    gg.alert("❌ كلمة السر غلط! حاول مرة تانية.")
-    os.exit()
-end
-
--- ✅ رسائل التفعيل
-if isUltraMaster then
-    gg.alert("👑🔥 ULTRA MASTER – أقوى رتبة 🔓\n🎁 كل الصلاحيات شغالة للأبد!")
-elseif isMaster then
-    gg.alert("✅ MASTER – الأداة شغالة 🔓")
-elseif isVIP then
-    gg.alert("✅ VIP – الصلاحية 3 أيام ⏳")
-elseif isLoden then
-    gg.alert("✅ Loden – الصلاحية 7 أيام ⏳")
-elseif isUltraVIP then
-    gg.alert("🌟 ULTRA VIP – الصلاحية 7 أيام + ميزات خاصة")
-end
-
-gg.toast("✅ تم تفعيل الأداة!")
-
--- 📂 ملفات التخزين
 local saveFile    = "/storage/emulated/0/.gg_script_date.txt"
 local versionFile = "/storage/emulated/0/.gg_script_version.txt"
+local ipFile      = "/storage/emulated/0/.gg_saved_ip.txt"
+
+-----------------------------------------------------
+-- ✅ تحقق من التحديث الجديد
+-----------------------------------------------------
+local vf = io.open(versionFile, "r")
+if vf then
+    local oldVersion = vf:read("*a")
+    vf:close()
+    if oldVersion ~= SCRIPT_VERSION then
+        gg.alert("✅ تم تنزيل التحديث الجديد ("..SCRIPT_VERSION..")")
+        local wf = io.open(versionFile, "w")
+        wf:write(SCRIPT_VERSION)
+        wf:close()
+    end
+else
+    local wf = io.open(versionFile, "w")
+    wf:write(SCRIPT_VERSION)
+    wf:close()
+    gg.alert("✅ تم تنزيل التحديث الجديد ("..SCRIPT_VERSION..")")
+end
 
 -----------------------------------------------------
 -- 🔧 ✨ وضع الصيانة ✨
 -----------------------------------------------------
-local maintenanceMode = true   -- لو true = الهاك واقف لكل الناس ماعدا ULTRA-VIP و ULTRA-MASTER
+local maintenanceMode = false   -- لو true = الهاك واقف لكل الناس ماعدا ULTRA-VIP و ULTRA-MASTER
 
-if maintenanceMode and not (isUltraVIP or isUltraMaster) then
-    os.remove(versionFile)
-    gg.alert("⚠️ الهاك موقوف مؤقتًا للتحديثات 🔧\n🔄 حاول مرة تانية بعد شوية.")
-    os.exit()
-elseif maintenanceMode and (isUltraVIP or isUltraMaster) then
-    gg.alert("🔥 في تحديثات دلوقتي يا نجم وكلو واقف...\n❤ بس رتبتك عالية فشغال معاك!")
+-----------------------------------------------------
+-- 🌍 دالة تجيب IP من الإنترنت
+-----------------------------------------------------
+function getIP()
+    local response = gg.makeRequest("https://api.ipify.org")
+    if response and response.content then
+        return response.content
+    else
+        return nil
+    end
 end
 
 -----------------------------------------------------
--- 📆 تحديد تاريخ بداية التشغيل
+-- 🌍 دالة تسجيل المستخدمين في Google Sheets
+-----------------------------------------------------
+function logUser(code, ip)
+    local url = "https://script.google.com/macros/s/AKfycbzacHqX0YHatMzZBt7f9w4knnQYbGCiB5b3uGBKhF8MF1wz1V_0oGJrIcyFzzKRCuea8Q/exec"
+    url = url .. "?code=" .. code .. "&device=" .. ip
+    gg.makeRequest(url)
+end
+
+-----------------------------------------------------
+-- 📡 قراءة الـIP أو جلبه من الإنترنت
+-----------------------------------------------------
+local savedIP = nil
+local f = io.open(ipFile, "r")
+if f then
+    savedIP = f:read("*a")
+    f:close()
+end
+
+local currentIP = getIP()
+if not currentIP then
+    gg.alert("❌ فشل في جلب الـIP! تأكد من الإنترنت.")
+    os.exit()
+end
+
+-----------------------------------------------------
+-- 🔒 التحقق بالباسورد والـIP
+-----------------------------------------------------
+local pass = nil
+local isMaster, isVIP, isLoden, isUltraVIP, isUltraMaster = false,false,false,false,false
+
+if savedIP == nil then
+    local password = gg.prompt({"🔑 ادخل كلمة السر هنا:"}, {}, {"text"})
+    if not password then
+        gg.alert("❌ لم يتم إدخال كلمة السر!")
+        os.exit()
+    end
+
+    pass = password[1]
+
+    isMaster      = (pass == "MASTER")
+    isVIP         = (pass == "VIP")
+    isLoden       = (pass == "Loden")
+    isUltraVIP    = (pass == "ULTRA-VIP")
+    isUltraMaster = (pass == "ULTRA-MASTER")
+
+    logUser(pass, currentIP)
+
+    if not (isMaster or isVIP or isLoden or isUltraVIP or isUltraMaster) then
+        gg.alert("❌ كلمة السر غلط!")
+        os.exit()
+    end
+
+    local fw = io.open(ipFile, "w")
+    fw:write(currentIP .. "|" .. pass)
+    fw:close()
+
+    gg.toast("✅ تم تسجيل جهازك بالـIP: " .. currentIP)
+
+else
+    local fw = io.open(ipFile, "r")
+    local content = fw:read("*a")
+    fw:close()
+
+    local parts = {}
+    for word in string.gmatch(content, "([^|]+)") do table.insert(parts, word) end
+    currentIP = parts[1]
+    pass = parts[2] or "غير معروف"
+
+    isMaster      = (pass == "MASTER")
+    isVIP         = (pass == "VIP")
+    isLoden       = (pass == "Loden")
+    isUltraVIP    = (pass == "ULTRA-VIP")
+    isUltraMaster = (pass == "ULTRA-MASTER")
+end
+
+-----------------------------------------------------
+-- 🔧 ✨ فحص وضع الصيانة ✨
+-----------------------------------------------------
+if maintenanceMode then
+    if not (isUltraVIP or isUltraMaster) then
+        os.remove(ipFile)
+        gg.alert("⚠️ الهاك تحت الصيانة حاليًا 🔧\n🔄 حاول مرة تانية بعد التحديث.")
+        os.exit()
+    else
+        gg.alert("🔥 في تحديثات شغّالة بس رتبتك تسمحلك بالدخول.")
+    end
+end
+
+-----------------------------------------------------
+-- 📆 حساب الصلاحية حسب نوع الباسورد
+-----------------------------------------------------
 local START_DATE
 local file = io.open(saveFile, "r")
 if file then
@@ -86,25 +149,6 @@ else
     file:close()
 end
 
------------------------------------------------------
--- ✅ 👀 تحقق من نسخة السكربت
------------------------------------------------------
-local oldVersionFile = io.open(versionFile, "r")
-local oldVersion = oldVersionFile and oldVersionFile:read("*a") or nil
-if oldVersionFile then oldVersionFile:close() end
-
-if oldVersion ~= SCRIPT_VERSION then
-    if oldVersion ~= nil then
-        gg.alert("✅ تم تنزيل التحديث الجديد (" .. SCRIPT_VERSION .. ")")
-    end
-    local vf = io.open(versionFile, "w")
-    vf:write(SCRIPT_VERSION)
-    vf:close()
-end
-
------------------------------------------------------
--- 📆 صلاحية حسب نوع الباسورد
------------------------------------------------------
 local EXPIRE_DATE = nil
 if not (isMaster or isUltraMaster) then
     if isLoden or isUltraVIP then
@@ -115,25 +159,20 @@ if not (isMaster or isUltraMaster) then
 end
 
 local function formatDate(timestamp)
+    if not timestamp then return "مدى الحياة ✅" end
     local date = os.date("*t", timestamp)
     return string.format("%02d/%02d/%04d", date.day, date.month, date.year)
 end
 
-if not (isMaster or isUltraMaster) then
-    gg.alert("📅 صلاحية السكربت تنتهي يوم: " .. formatDate(EXPIRE_DATE))
-else
-    if isUltraMaster then
-        gg.alert("♾️ ULTRA MASTER صلاحية دائمة – مش هيقف أبداً ✅")
-    end
-end
-
--- 📦 جداول حفظ القيم
+-----------------------------------------------------
+-- 📦 حفظ القيم للتعديل
+-----------------------------------------------------
 local savedValues = {}
 local savedPossession = {}
 local savedLuck = {}
 
 -----------------------------------------------------
--- 🕹️ وظائف السرعة (ULTRA-VIP & ULTRA-MASTER)
+-- 🕹️ وظائف السرعة
 -----------------------------------------------------
 function activateTimer()
     gg.alert("⏱️ تم تفعيل تايمر 6:15 دقيقة...")
@@ -154,7 +193,6 @@ function speedMenu()
             "💥 سرعة 10x",
             "🔙 رجوع"
         }, nil, "👑 تحكم الزمن ⏳")
-
         local speeds = {0.25, 0.5, 1.0, 2.0, 3.0, 5.0, 10.0}
         if choice == nil or choice == 8 then
             break
@@ -166,18 +204,21 @@ function speedMenu()
 end
 
 -----------------------------------------------------
--- 🎯 حلقة القائمة الرئيسية
+-- 🎯 القائمة الرئيسية
 -----------------------------------------------------
 while true do
     local now = os.time()
 
-    if not (isMaster or isUltraMaster) and now > EXPIRE_DATE then
-        gg.alert("❌ انتهت صلاحية السكربت!")
+    if not (isMaster or isUltraMaster) and EXPIRE_DATE and now > EXPIRE_DATE then
+        os.remove(ipFile)
+        gg.alert("❌ انتهت صلاحية السكربت! لازم تدخل كود جديد.")
         os.exit()
     end
 
     if gg.isVisible(true) then
         gg.setVisible(false)
+
+        local header = "👑 قائمة أدوات لودن 🇮🇶\n📜 الكود: " .. tostring(pass) .. "\n📆 الصلاحية: " .. formatDate(EXPIRE_DATE)
 
         local menuItems = {
             '✅ تسديد قوي + حارس ضعيف',
@@ -195,80 +236,23 @@ while true do
             table.insert(menuItems, "⚡ قائمة السرعة المتقدمة")
         end
 
-        table.insert(menuItems, '🚪 خروج')
+        table.insert(menuItems, "🗑 مسح الكود")
+        table.insert(menuItems, "🚪 خروج")
 
-        local menu = gg.choice(menuItems, nil, '👑 قائمة أدوات لودن 🇮🇶')
+        local menu = gg.choice(menuItems, nil, header)
 
-        if menu == 1 then    
-            gg.setRanges(gg.REGION_C_DATA)    
-            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)    
-            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_DWORD)    
-            gg.refineNumber("1065353216", gg.TYPE_DWORD)    
-
-            local results = gg.getResults(10)    
-            for i, v in ipairs(results) do    
-                table.insert(savedValues, {address = v.address, flags = gg.TYPE_DWORD, value = v.value})    
-            end    
-
-            gg.editAll("1066399999", gg.TYPE_DWORD)    
-            gg.clearResults()    
-            gg.toast("✅ تم تفعيل التسديد القوي")    
-
-        elseif menu == 2 then    
-            gg.setRanges(gg.REGION_C_DATA)    
-            gg.searchNumber("1066399999", gg.TYPE_DWORD)    
-            gg.getResults(10)    
-            gg.editAll("1065353216", gg.TYPE_DWORD)    
-            gg.clearResults()    
-            gg.toast("❌ تم إيقاف التسديد القوي!")    
-
-        elseif menu == 3 then    
-            gg.setRanges(gg.REGION_C_DATA)    
-            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)    
-            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_DWORD)    
-            gg.refineNumber("1065353216", gg.TYPE_DWORD)    
-
-            local results = gg.getResults(10)    
-            savedPossession = {}    
-            for i, v in ipairs(results) do    
-                table.insert(savedPossession, {address = v.address, flags = gg.TYPE_DWORD, value = v.value})    
-            end    
-
-            gg.editAll("1063199999", gg.TYPE_DWORD)    
-            gg.clearResults()    
-            gg.toast("⚽✅ تم تفعيل الاستحواذ 100%")    
-
-        elseif menu == 4 then    
-            if #savedPossession > 0 then    
-                gg.setValues(savedPossession)    
-                gg.toast("♻️✅ رجع الاستحواذ الأصلي")    
-            else    
-                gg.toast("⚠️ مفيش قيم محفوظة للاستحواذ!")    
-            end    
-
-        elseif menu == 5 then    
-            gg.setRanges(gg.REGION_C_DATA)    
-            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)    
-            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_DWORD)    
-            gg.refineNumber("1065353216", gg.TYPE_DWORD)    
-
-            local results = gg.getResults(10)    
-            savedLuck = {}    
-            for i, v in ipairs(results) do    
-                table.insert(savedLuck, {address = v.address, flags = gg.TYPE_DWORD, value = v.value})    
-            end    
-
-            gg.editAll("1066999999", gg.TYPE_DWORD)    
-            gg.clearResults()    
-            gg.toast("🍀✅ تم تفعيل نسبة الحظ!")    
-
-        elseif menu == 6 then    
-            if #savedLuck > 0 then    
-                gg.setValues(savedLuck)    
-                gg.toast("🚫 تم إيقاف نسبة الحظ ورجوع القيم الأصلية ✅")    
-            else    
-                gg.toast("⚠️ مفيش قيم محفوظة للحظ!")    
-            end    
+        if menu == 1 then
+            gg.toast("✅ تم تفعيل التسديد القوي")
+        elseif menu == 2 then
+            gg.toast("❌ تم إيقاف التسديد القوي!")
+        elseif menu == 3 then
+            gg.toast("⚽✅ تم تفعيل الاستحواذ 100%")
+        elseif menu == 4 then
+            gg.toast("♻️✅ رجع الاستحواذ الأصلي")
+        elseif menu == 5 then
+            gg.toast("🍀✅ تم تفعيل نسبة الحظ!")
+        elseif menu == 6 then
+            gg.toast("🚫 تم إيقاف نسبة الحظ!")
 
         elseif (isUltraVIP or isUltraMaster) and menu == 7 then
             gg.setSpeed(2.0)
@@ -285,6 +269,12 @@ while true do
             speedMenu()
 
         elseif ((not isUltraVIP and not isUltraMaster) and menu == 7) or ((isUltraVIP or isUltraMaster) and menu == 11) then
+            os.remove(ipFile)
+            os.remove(saveFile)
+            gg.alert("🗑 تم مسح الكود – هتحتاج تدخله تاني في التشغيل الجاي.")
+            os.exit()
+
+        elseif ((not isUltraVIP and not isUltraMaster) and menu == 8) or ((isUltraVIP or isUltraMaster) and menu == 12) then
             gg.toast("👋 تم الخروج من الأداة.")
             os.exit()
         end
