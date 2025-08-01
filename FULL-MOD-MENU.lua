@@ -54,10 +54,10 @@ end
 -----------------------------------------------------
 -- 🔧 ✨ وضع الصيانة ✨
 -----------------------------------------------------
-local maintenanceMode = false   -- لو true = الهاك واقف لكل الناس ماعدا ULTRA-VIP و ULTRA-MASTER
+local maintenanceMode = true   -- لو true = الهاك واقف لكل الناس ماعدا ULTRA-VIP و ULTRA-MASTER
 
 if maintenanceMode then
-    if not (isUltraVIP or isUltraMaster) then
+    
         os.remove(ipFile)
         gg.alert("⚠️ الهاك تحت الصيانة حاليًا 🔧\n🔄 حاول مرة تانية بعد التحديث.")
         os.exit()
