@@ -1,5 +1,5 @@
 -- 🏷️ رقم نسخة السكربت
-local SCRIPT_VERSION = "3.8"
+local SCRIPT_VERSION = "3.9"
 
 -----------------------------------------------------
 -- 📂 ملفات التخزين
@@ -140,17 +140,6 @@ else
     isLoden       = (pass == "Loden")
     isUltraVIP    = (pass == "ULTRA-VIP")
     isUltraMaster = (pass == "ULTRA-MASTER")
-    if isUltraVIP then
-        gg.alert("🔥 أهلاً بالـ ULTRA‑VIP – كل الصلاحيات مفتوحة لك!")
-    elseif isUltraMaster then
-        gg.alert("👑 أهلاً بالـ ULTRA‑MASTER – أقوى رتبة! عندك صلاحيات مطلقة 🚀")
-    elseif isVIP then
-        gg.toast("✅ تم تسجيلك كـ VIP – صلاحية 3 أيام")
-    elseif isLoden then
-        gg.toast("✅ تم تسجيلك كـ Loden – صلاحية أسبوع")
-    elseif isMaster then
-        gg.toast("✅ تم تسجيلك كـ MASTER – مدى الحياة")
-    end
 end
 
 -----------------------------------------------------
@@ -185,6 +174,7 @@ end
 local savedShoot = {}
 local savedPossession = {}
 local savedLuck = {}
+local savedRonaldo = {}   -- ✅ إضافة متغير لرونالدينهو
 
 -----------------------------------------------------
 -- 🕹️ دوال السرعة
@@ -196,40 +186,16 @@ function activateTimer()
     gg.setSpeed(10.0)
 end
 
-function speedMenu()
-    while true do
-        local choice = gg.choice({
-            "🐢 سرعة ربع (0.25x)",
-            "🚶 سرعة نص (0.5x)",
-            "🚗 سرعة طبيعية (1x)",
-            "🚀 سرعة 2x",
-            "🔥 سرعة 3x",
-            "⚡ سرعة 5x",
-            "💥 سرعة 10x",
-            "🔙 رجوع"
-        }, nil, "👑 تحكم الزمن ⏳")
-        local speeds = {0.25, 0.5, 1.0, 2.0, 3.0, 5.0, 10.0}
-        if choice == nil or choice == 8 then break
-        elseif choice >= 1 and choice <= 7 then
-            gg.setSpeed(speeds[choice])
-            gg.alert("⚡ تم ضبط السرعة: " .. speeds[choice] .. "x")
-        end
-    end
-end
-
 -----------------------------------------------------
 -- 🎯 القائمة الرئيسية
 -----------------------------------------------------
 while true do
     local now = os.time()
-if not (isMaster or isUltraMaster) and EXPIRE_DATE and now > EXPIRE_DATE then
-    -- 🗑 حذف ملفات التسجيل بالكامل
-    os.remove(ipFile)
-    
-    
-    gg.alert("❌ انتهت صلاحية الكود! لازم تدخل كود جديد.")
-    os.exit()
-end
+    if not (isMaster or isUltraMaster) and EXPIRE_DATE and now > EXPIRE_DATE then
+        os.remove(ipFile)
+        gg.alert("❌ انتهت صلاحية الكود! لازم تدخل كود جديد.")
+        os.exit()
+    end
 
     if gg.isVisible(true) then
         gg.setVisible(false)
@@ -243,6 +209,8 @@ end
             '♻️ إيقاف الاستحواذ',
             '🍀 تفعيل نسبة الحظ',
             '🚫 إيقاف نسبة الحظ',
+            '🎨 كولر + رونالدينهو 65% ❤️‍🔥',  -- ✅ جديد
+            '🚫 إيقاف نسبة حظ رونالدينهو',    -- ✅ جديد
         }
 
         if (isUltraVIP or isUltraMaster) then
@@ -259,65 +227,46 @@ end
 
         if menu == 1 then
             gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)
-            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_DWORD)
             gg.refineNumber("1065353216", gg.TYPE_DWORD)
             savedShoot = gg.getResults(10)
             gg.editAll("1066399999", gg.TYPE_DWORD)
             gg.clearResults()
             gg.toast("✅ تم تفعيل التسديد القوي")
         elseif menu == 2 then
-            if #savedShoot > 0 then
-                gg.setValues(savedShoot)
-                gg.toast("❌ رجع التسديد القوي للأصل")
-            else
-                gg.toast("⚠️ مفيش قيم محفوظة للتسديد!")
-            end
+            if #savedShoot > 0 then gg.setValues(savedShoot) gg.toast("❌ رجع التسديد القوي للأصل") end
         elseif menu == 3 then
             gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)
-            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_DWORD)
             gg.refineNumber("1065353216", gg.TYPE_DWORD)
             savedPossession = gg.getResults(10)
             gg.editAll("1063199999", gg.TYPE_DWORD)
             gg.clearResults()
             gg.toast("⚽✅ تم تفعيل الاستحواذ 100%")
         elseif menu == 4 then
-            if #savedPossession > 0 then
-                gg.setValues(savedPossession)
-                gg.toast("♻️ رجع الاستحواذ الأصلي")
-            else
-                gg.toast("⚠️ مفيش قيم محفوظة للاستحواذ!")
-            end
+            if #savedPossession > 0 then gg.setValues(savedPossession) gg.toast("♻️ رجع الاستحواذ الأصلي") end
         elseif menu == 5 then
             gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)
-            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_DWORD)
             gg.refineNumber("1065353216", gg.TYPE_DWORD)
             savedLuck = gg.getResults(10)
             gg.editAll("1066999999", gg.TYPE_DWORD)
             gg.clearResults()
             gg.toast("🍀✅ تم تفعيل نسبة الحظ!")
         elseif menu == 6 then
-            if #savedLuck > 0 then
-                gg.setValues(savedLuck)
-                gg.toast("🚫 رجعت قيم الحظ للأصل ✅")
-            else
-                gg.toast("⚠️ مفيش قيم محفوظة للحظ!")
-            end
-        elseif (isUltraVIP or isUltraMaster) and menu == 7 then
-            gg.setSpeed(2.0)
-            gg.alert("⏩ الوقت مسرع ×2")
-        elseif (isUltraVIP or isUltraMaster) and menu == 8 then
-            gg.setSpeed(1.0)
-            gg.alert("⏸ تم إيقاف سرعة الوقت")
-        elseif (isUltraVIP or isUltraMaster) and menu == 9 then
-            activateTimer()
-        elseif (isUltraVIP or isUltraMaster) and menu == 10 then
-            speedMenu()
-        elseif ((not isUltraVIP and not isUltraMaster) and menu == 7) or ((isUltraVIP or isUltraMaster) and menu == 11) then
+            if #savedLuck > 0 then gg.setValues(savedLuck) gg.toast("🚫 رجعت قيم الحظ للأصل ✅") end
+        elseif menu == 7 then
+            gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)
+            gg.refineNumber("1065353216", gg.TYPE_DWORD)
+            savedRonaldo = gg.getResults(10)
+            gg.editAll("1065599999", gg.TYPE_DWORD)
+            gg.clearResults()
+            gg.toast("🎨✅ كولر + رونالدينهو 65% شغّال!")
+        elseif menu == 8 then
+            if #savedRonaldo > 0 then gg.setValues(savedRonaldo) gg.toast("🚫 رجعت قيم رونالدينهو للأصل ✅") end
+        elseif ((not isUltraVIP and not isUltraMaster) and menu == 9) or ((isUltraVIP or isUltraMaster) and menu == 13) then
             os.remove(ipFile)
             os.remove(saveFile)
             gg.alert("🗑 تم مسح الكود – هتحتاج تدخله تاني في التشغيل الجاي.")
             os.exit()
-        elseif ((not isUltraVIP and not isUltraMaster) and menu == 8) or ((isUltraVIP or isUltraMaster) and menu == 12) then
+        elseif ((not isUltraVIP and not isUltraMaster) and menu == 10) or ((isUltraVIP or isUltraMaster) and menu == 14) then
             gg.toast("👋 تم الخروج من الأداة.")
             os.exit()
         end
