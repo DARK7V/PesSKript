@@ -225,7 +225,7 @@ while true do
 if not (isMaster or isUltraMaster) and EXPIRE_DATE and now > EXPIRE_DATE then
     -- 🗑 حذف ملفات التسجيل بالكامل
     os.remove(ipFile)
-    os.remove(saveFile)
+    
     
     gg.alert("❌ انتهت صلاحية الكود! لازم تدخل كود جديد.")
     os.exit()
