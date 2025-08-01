@@ -1,4 +1,4 @@
--- 🏷️ رقم نسخة السكربت
+ام-- 🏷️ رقم نسخة السكربت
 local SCRIPT_VERSION = "3.9"
 
 -----------------------------------------------------
@@ -245,11 +245,11 @@ while true do
             if #savedPossession > 0 then gg.setValues(savedPossession) gg.toast("♻️ رجع الاستحواذ الأصلي") end
         elseif menu == 5 then
             gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)
-            gg.refineNumber("1065353216", gg.TYPE_DWORD)
-            savedLuck = gg.getResults(10)
-            gg.editAll("1066999999", gg.TYPE_DWORD)
-            gg.clearResults()
-            gg.toast("🍀✅ تم تفعيل نسبة الحظ!")
+gg.refineNumber("1065353216", gg.TYPE_DWORD)
+savedLuck = gg.getResults(10)
+gg.editAll("1070000000", gg.TYPE_DWORD)
+gg.clearResults()
+gg.toast("🍀✅ تم تفعيل الحظ 100% – أفضل اللاعبين هيظهروا!")
         elseif menu == 6 then
             if #savedLuck > 0 then gg.setValues(savedLuck) gg.toast("🚫 رجعت قيم الحظ للأصل ✅") end
         elseif menu == 7 then
