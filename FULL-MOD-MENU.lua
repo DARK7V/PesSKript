@@ -1,5 +1,5 @@
 -- 🏷️ رقم نسخة السكربت
-local SCRIPT_VERSION = "3.9"
+local SCRIPT_VERSION = "3.8"
 
 -----------------------------------------------------
 -- 📂 ملفات التخزين
@@ -29,11 +29,20 @@ else
 end
 
 -----------------------------------------------------
--- 🌍 دوال الشبكة
+-- 🌍 دوال الشبكة (مع محاولة متعددة)
 -----------------------------------------------------
 function getIP()
-    local response = gg.makeRequest("https://api.ipify.org")
-    if response and response.content then return response.content else return nil end
+    local urls = {
+        "https://api.ipify.org",
+        "https://ifconfig.me/ip"
+    }
+    for _, url in ipairs(urls) do
+        local response = gg.makeRequest(url)
+        if response and response.content and response.content ~= "" then
+            return response.content
+        end
+    end
+    return nil
 end
 
 function logUser(code, ip)
@@ -41,8 +50,6 @@ function logUser(code, ip)
     url = url .. "?code=" .. code .. "&device=" .. ip
     gg.makeRequest(url)
 end
-
-
 
 -----------------------------------------------------
 -- 🔧 ✨ وضع الصيانة ✨
@@ -58,15 +65,39 @@ if maintenanceMode then
         gg.alert("🔥 في تحديثات شغّالة لكن رتبتك تسمحلك بالدخول.")
     end
 end
+
 -----------------------------------------------------
--- 📡 قراءة/تخزين الـIP
+-- 📡 قراءة/تخزين الـIP (مع إعادة المحاولة)
 -----------------------------------------------------
 local savedIP = nil
 local f = io.open(ipFile, "r")
 if f then savedIP = f:read("*a") f:close() end
 
 local currentIP = getIP()
-if not currentIP then gg.alert("❌ فشل في جلب الـIP!") os.exit() end
+
+-- 🛠️ إعادة المحاولة 3 مرات لو فشل
+if not currentIP then
+    gg.toast("⚠️ محاولة أولى فشلت.. بنعيد المحاولة 🔄")
+    gg.sleep(1500)
+    currentIP = getIP()
+end
+if not currentIP then
+    gg.toast("⚠️ محاولة ثانية فشلت.. بنعيد المحاولة 🔄")
+    gg.sleep(1500)
+    currentIP = getIP()
+end
+
+-- 🚨 لو فشل نهائيًا → خيار إدخال يدوي
+if not currentIP then
+    local manual = gg.prompt({"🌍 السيرفر فشل يجيب IP جهازك.\n✍️ اكتب الـIP يدوي (مثلاً: 41.232.54.120):"}, {}, {"text"})
+    if not manual then
+        gg.alert("❌ مفيش IP – مش قادر أكمل!")
+        os.exit()
+    else
+        currentIP = manual[1]
+        gg.toast("✅ تم تسجيل الـIP اليدوي: " .. currentIP)
+    end
+end
 
 -----------------------------------------------------
 -- 🔒 التحقق بالباسورد
@@ -226,9 +257,6 @@ end
 
         local menu = gg.choice(menuItems, nil, header)
 
-        -------------------------------------------------
-        -- ✅ تسديد قوي + حارس ضعيف
-        -------------------------------------------------
         if menu == 1 then
             gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)
             gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_DWORD)
@@ -237,10 +265,6 @@ end
             gg.editAll("1066399999", gg.TYPE_DWORD)
             gg.clearResults()
             gg.toast("✅ تم تفعيل التسديد القوي")
-
-        -------------------------------------------------
-        -- ❌ إيقاف التسديد القوي
-        -------------------------------------------------
         elseif menu == 2 then
             if #savedShoot > 0 then
                 gg.setValues(savedShoot)
@@ -248,10 +272,6 @@ end
             else
                 gg.toast("⚠️ مفيش قيم محفوظة للتسديد!")
             end
-
-        -------------------------------------------------
-        -- ⚽ استحواذ 100%
-        -------------------------------------------------
         elseif menu == 3 then
             gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)
             gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_DWORD)
@@ -260,10 +280,6 @@ end
             gg.editAll("1063199999", gg.TYPE_DWORD)
             gg.clearResults()
             gg.toast("⚽✅ تم تفعيل الاستحواذ 100%")
-
-        -------------------------------------------------
-        -- ♻️ إيقاف الاستحواذ
-        -------------------------------------------------
         elseif menu == 4 then
             if #savedPossession > 0 then
                 gg.setValues(savedPossession)
@@ -271,10 +287,6 @@ end
             else
                 gg.toast("⚠️ مفيش قيم محفوظة للاستحواذ!")
             end
-
-        -------------------------------------------------
-        -- 🍀 تفعيل نسبة الحظ
-        -------------------------------------------------
         elseif menu == 5 then
             gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_FLOAT)
             gg.searchNumber("1065353216;720;486;30000;1001:17", gg.TYPE_DWORD)
@@ -283,10 +295,6 @@ end
             gg.editAll("1066999999", gg.TYPE_DWORD)
             gg.clearResults()
             gg.toast("🍀✅ تم تفعيل نسبة الحظ!")
-
-        -------------------------------------------------
-        -- 🚫 إيقاف نسبة الحظ
-        -------------------------------------------------
         elseif menu == 6 then
             if #savedLuck > 0 then
                 gg.setValues(savedLuck)
@@ -294,45 +302,21 @@ end
             else
                 gg.toast("⚠️ مفيش قيم محفوظة للحظ!")
             end
-
-        -------------------------------------------------
-        -- ⏩ سرعة ×2 (Ultra-VIP & Ultra-Master)
-        -------------------------------------------------
         elseif (isUltraVIP or isUltraMaster) and menu == 7 then
             gg.setSpeed(2.0)
             gg.alert("⏩ الوقت مسرع ×2")
-
-        -------------------------------------------------
-        -- ⏸ إيقاف الوقت
-        -------------------------------------------------
         elseif (isUltraVIP or isUltraMaster) and menu == 8 then
             gg.setSpeed(1.0)
             gg.alert("⏸ تم إيقاف سرعة الوقت")
-
-        -------------------------------------------------
-        -- ⏱️ تايمر
-        -------------------------------------------------
         elseif (isUltraVIP or isUltraMaster) and menu == 9 then
             activateTimer()
-
-        -------------------------------------------------
-        -- ⚡ قائمة السرعة
-        -------------------------------------------------
         elseif (isUltraVIP or isUltraMaster) and menu == 10 then
             speedMenu()
-
-        -------------------------------------------------
-        -- 🗑 مسح الكود
-        -------------------------------------------------
         elseif ((not isUltraVIP and not isUltraMaster) and menu == 7) or ((isUltraVIP or isUltraMaster) and menu == 11) then
             os.remove(ipFile)
             os.remove(saveFile)
             gg.alert("🗑 تم مسح الكود – هتحتاج تدخله تاني في التشغيل الجاي.")
             os.exit()
-
-        -------------------------------------------------
-        -- 🚪 خروج
-        -------------------------------------------------
         elseif ((not isUltraVIP and not isUltraMaster) and menu == 8) or ((isUltraVIP or isUltraMaster) and menu == 12) then
             gg.toast("👋 تم الخروج من الأداة.")
             os.exit()
