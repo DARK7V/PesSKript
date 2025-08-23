@@ -1,5 +1,5 @@
 -- 🏷️ رقم نسخة السكربت
-local SCRIPT_VERSION = "4.0"
+local SCRIPT_VERSION = "4.1"
 
 -- 📂 ملفات التخزين
 local saveFile    = "/storage/emulated/0/.gg_script_date.txt"
@@ -190,7 +190,7 @@ while true do
     if gg.isVisible(true) then
         gg.setVisible(false)
 
-        local header = "👑 قائمة أدوات لودن 🇮🇶\n📜 الكود: " .. tostring(pass) .. "\n📆 الصلاحية: " .. formatDate(EXPIRE_DATE)
+        local header = "👑 قائمة أدوات هارد 🇮🇶\n📜 الكود: " .. tostring(pass) .. "\n📆 الصلاحية: " .. formatDate(EXPIRE_DATE)
 
         local menuItems = {
             '✅ تسديد قوي + حارس ضعيف',
