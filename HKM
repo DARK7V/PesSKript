@@ -33,6 +33,13 @@ def parse_patch_line(line):
     if match2:
         lib, offset = match2.groups()
         return lib.strip(), offset.strip(), ""
+
+    # صيغة أوفست فقط
+    pattern3 = r'^(0x[0-9A-Fa-f]+)$'
+    match3 = re.search(pattern3, line)
+    if match3:
+        offset = match3.group(1)
+        return "UNKNOWN_LIB", offset.strip(), ""
     
     return None, None, None
 
@@ -69,6 +76,20 @@ def stats_report(offsets, patch_type, hex_used):
     report += f"إجمالي المكتبات: {len(stats)}\n"
     return report
 
+def fix_unknown_libs(offsets):
+    """لو فيه UNKNOWN_LIB يطلب من المستخدم يحدد المكتبة"""
+    has_unknown = any(lib == "UNKNOWN_LIB" for lib, _, _ in offsets)
+    if has_unknown:
+        lib_name = input("🔹 تم العثور على أوفستات بدون مكتبة. اكتب اسم المكتبة لهم: ").strip()
+        new_offsets = []
+        for lib, off, hex_code in offsets:
+            if lib == "UNKNOWN_LIB":
+                new_offsets.append((lib_name, off, hex_code))
+            else:
+                new_offsets.append((lib, off, hex_code))
+        return new_offsets
+    return offsets
+
 def main():
     banner()
     print("🔹 اختر العملية:")
@@ -97,7 +118,7 @@ def main():
         hex_choice = input("> ").strip()
         hex_override = hex_options.get(hex_choice, ("", ""))[0]
 
-        print("\n🔹 الصق الأوفستات (lib offset) كل سطر لوحده. لما تخلص اكتب 'تم'")
+        print("\n🔹 الصق الأوفستات (lib offset أو 0xoffset) كل سطر لوحده. لما تخلص اكتب 'تم'")
         while True:
             line = input("> ").strip()
             if line.lower() == "تم":
@@ -105,6 +126,7 @@ def main():
             lib, offset, hex_code = parse_patch_line(line)
             if offset:
                 offsets.append((lib, offset, hex_code))
+
         if not offsets:
             print("❌ لم يتم إدخال أي أوفست.")
             return
@@ -118,6 +140,7 @@ def main():
             lib, offset, hex_code = parse_patch_line(line)
             if offset:
                 offsets.append((lib, offset, hex_code))
+
         if not offsets:
             print("❌ لم يتم إدخال أي باتش.")
             return
@@ -133,6 +156,9 @@ def main():
     else:
         print("❌ اختيار غير صالح.")
         return
+
+    # إصلاح المكتبات الغير معروفة
+    offsets = fix_unknown_libs(offsets)
 
     save_path = "/sdcard/patch_code.txt"
     code = generate_patch(offsets, patch_type, hex_override)
